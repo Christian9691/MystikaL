@@ -1,21 +1,73 @@
 """Transpiler for PussyCat custom language.
 
-Converts token stream to Python code.
+Converts a validated token stream (from lexer.tokenize) into Python source
+code, and builds a line map so runtime errors can be remapped back to the
+original PussyCat source line numbers.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 from constants import KEYWORD_MAP
-from lexer import Token, LexerResult
+from lexer import Token
 
 
 @dataclass
 class TranspileResult:
-    """Result of transpilation operation."""
+    """Result of transpilation operation.
+
+    Attributes:
+        python:   Generated Python source code.
+        line_map: Maps each generated Python line number (1-indexed) to the
+                  PussyCat source line number it was produced from.
+    """
     python: str
     line_map: dict[int, int]
 
 
 def transpile(tokens: list[Token]) -> TranspileResult:
-    """Transpile token stream to Python code."""
-    return TranspileResult(python="", line_map={})
+    """Transpile a PussyCat token stream into Python source code.
+
+    Iterates over every token produced by tokenize():
+
+      - KEYWORD tokens     → substituted with their Python equivalent from
+                             KEYWORD_MAP (e.g. "kung" → "if").
+      - WHITESPACE tokens  → appended verbatim; newlines advance the internal
+                             output-line counter so the line_map stays in sync.
+      - All other tokens   → appended verbatim (value unchanged).
+
+    line_map records, for each output Python line, the PussyCat source line
+    that produced the content on that line.  Executor uses this to rewrite
+    Python traceback line numbers back to PussyCat source lines.
+
+    Precondition: `tokens` is a valid stream from tokenize() with no unknown
+    tokens.  transpile() never calls tokenize() itself.
+    """
+    output_parts: list[str] = []
+    line_map: dict[int, int] = {}
+
+    out_line: int = 1   # 1-indexed current output (Python) line
+
+    for token in tokens:
+        if token.type == "KEYWORD":
+            # Replace PussyCat keyword with its Python equivalent
+            output_parts.append(KEYWORD_MAP[token.value])
+            # Map this output line → the PussyCat source line of the token
+            line_map[out_line] = token.line
+
+        elif token.type == "WHITESPACE":
+            output_parts.append(token.value)
+            # Advance the output line counter for each newline in the chunk
+            newlines = token.value.count('\n')
+            if newlines:
+                out_line += newlines
+                # Seed the new output line with the same source line as this
+                # whitespace token; a real token on that line will overwrite it
+                line_map[out_line] = token.line
+
+        else:
+            # IDENT, NUMBER, STRING, SYMBOL, COMMENT — append verbatim
+            output_parts.append(token.value)
+            # Record mapping for any non-whitespace content on this output line
+            line_map[out_line] = token.line
+
+    python_code = "".join(output_parts)
+    return TranspileResult(python=python_code, line_map=line_map)
