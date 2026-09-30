@@ -50,24 +50,23 @@ def transpile(tokens: list[Token]) -> TranspileResult:
         if token.type == "KEYWORD":
             # Replace PussyCat keyword with its Python equivalent
             output_parts.append(KEYWORD_MAP[token.value])
-            # Map this output line → the PussyCat source line of the token
-            line_map[out_line] = token.line
-
-        elif token.type == "WHITESPACE":
-            output_parts.append(token.value)
-            # Advance the output line counter for each newline in the chunk
-            newlines = token.value.count('\n')
-            if newlines:
-                out_line += newlines
-                # Seed the new output line with the same source line as this
-                # whitespace token; a real token on that line will overwrite it
-                line_map[out_line] = token.line
-
         else:
-            # IDENT, NUMBER, STRING, SYMBOL, COMMENT — append verbatim
+            # WHITESPACE, IDENT, NUMBER, STRING, SYMBOL, COMMENT — verbatim
             output_parts.append(token.value)
-            # Record mapping for any non-whitespace content on this output line
-            line_map[out_line] = token.line
+
+        # Record the mapping before advancing the line counter so the token
+        # is attributed to the line it *starts* on.
+        line_map[out_line] = token.line
+
+        # Advance out_line for every newline inside ANY token (multiline
+        # strings, whitespace chunks, comments that end in \n, etc.).
+        newlines = token.value.count('\n')
+        if newlines:
+            for i in range(1, newlines + 1):
+                # Pre-seed each newly opened output line with the source line
+                # of the current token; the next real token will overwrite it.
+                line_map[out_line + i] = token.line
+            out_line += newlines
 
     python_code = "".join(output_parts)
     return TranspileResult(python=python_code, line_map=line_map)

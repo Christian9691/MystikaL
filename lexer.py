@@ -25,21 +25,23 @@ class LexerResult:
 
 
 # Master regex pattern — order of alternations matters:
-#   1. Identifiers / keywords:  [a-zA-Z_]\w*
-#   2. Numbers (int or float):  [0-9]+(?:\.[0-9]+)?
-#   3. Double-quoted strings:   "[^"]*"
-#   4. Single-quoted strings:   '[^']*'
-#   5. Whitespace (incl. \n):   \s+
-#   6. Any other single char:   [^\s]   (symbols, operators, unknown)
+#   1. Comments:                #[^\n]*      (must precede [^\s] so # is not split)
+#   2. Identifiers / keywords:  [a-zA-Z_]\w*
+#   3. Numbers (int or float):  [0-9]+(?:\.[0-9]+)?
+#   4. Double-quoted strings:   "[^"]*"
+#   5. Single-quoted strings:   '[^']*'
+#   6. Whitespace (incl. \n):   \s+
+#   7. Any other single char:   [^\s]        (symbols, operators, unknown)
 _TOKEN_RE = re.compile(
-    r'[a-zA-Z_]\w*|[0-9]+(?:\.[0-9]+)?|"[^"]*"|\'[^\']*\'|\s+|[^\s]'
+    r'#[^\n]*|[a-zA-Z_]\w*|[0-9]+(?:\.[0-9]+)?|"[^"]*"|\'[^\']*\'|\s+|[^\s]'
 )
 
 # Characters that are valid single-character symbols / operators in PussyCat.
-# Only include characters that appear in valid PussyCat/Python syntax.
-# Unknown characters like @, $, `, ~ etc. are intentionally excluded so the
-# lexer can report them as errors.
-_SYMBOLS = set('+-*/=<>!:(),.[]{}"\'')
+# Includes arithmetic, comparison, bitwise, and punctuation operators.
+# Quote characters (" and ') are intentionally excluded — a stray lone quote
+# is not a valid symbol; it should produce a LexerError.
+# Unknown characters like @, $, ` are also excluded so the lexer reports them.
+_SYMBOLS = set('+-*/=<>!:(),.[]{};%^&|~')
 
 
 def _classify(word: str) -> str:
@@ -53,8 +55,12 @@ def _classify(word: str) -> str:
         return "IDENT"
     if re.fullmatch(r'[0-9]+(?:\.[0-9]+)?', word):
         return "NUMBER"
-    if (word.startswith('"') and word.endswith('"')) or \
-       (word.startswith("'") and word.endswith("'")):
+    # STRING: must be at least 2 chars (opening + closing quote) to avoid a
+    # lone stray quote being misclassified as a valid empty string.
+    if len(word) >= 2 and (
+        (word.startswith('"') and word.endswith('"')) or
+        (word.startswith("'") and word.endswith("'"))
+    ):
         return "STRING"
     if word.startswith('#'):
         return "COMMENT"
