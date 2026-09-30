@@ -25,15 +25,19 @@ class LexerResult:
 
 
 # Master regex pattern — order of alternations matters:
-#   1. Comments:                #[^\n]*       (full line, must precede [^\s])
+#   1. Comments:                #[^\n]*            (full line, must precede [^\s])
 #   2. Identifiers / keywords:  [a-zA-Z_]\w*
 #   3. Numbers (int or float):  [0-9]+(?:\.[0-9]+)?
-#   4. Double-quoted strings:   "[^"\n]*"     (\n excluded — no multiline bleed)
-#   5. Single-quoted strings:   '[^'\n]*'     (\n excluded — no multiline bleed)
+#   4. Double-quoted strings:   "(?:\\.|[^"\\\n])*"
+#                               (?:\\.)      matches any backslash-escaped char
+#                               [^"\\\n]     matches normal chars (no quote/backslash/newline)
+#                               Together: supports \"  \\  \n escape sequences inside strings
+#                               while still stopping at an unescaped newline (no bleed).
+#   5. Single-quoted strings:   '(?:\\.|[^'\\\n])*'  (same logic)
 #   6. Whitespace (incl. \n):   \s+
-#   7. Any other single char:   [^\s]         (symbols, operators, unknown)
+#   7. Any other single char:   [^\s]              (symbols, operators, unknown)
 _TOKEN_RE = re.compile(
-    r'#[^\n]*|[a-zA-Z_]\w*|[0-9]+(?:\.[0-9]+)?|"[^"\n]*"|\'[^\'\n]*\'|\s+|[^\s]'
+    r'#[^\n]*|[a-zA-Z_]\w*|[0-9]+(?:\.[0-9]+)?|"(?:\\.|[^"\\\n])*"|\'(?:\\.|[^\'\\\n])*\'|\s+|[^\s]'
 )
 
 # Characters that are valid single-character symbols / operators in PussyCat.
