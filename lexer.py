@@ -25,15 +25,15 @@ class LexerResult:
 
 
 # Master regex pattern — order of alternations matters:
-#   1. Comments:                #[^\n]*      (must precede [^\s] so # is not split)
+#   1. Comments:                #[^\n]*       (full line, must precede [^\s])
 #   2. Identifiers / keywords:  [a-zA-Z_]\w*
 #   3. Numbers (int or float):  [0-9]+(?:\.[0-9]+)?
-#   4. Double-quoted strings:   "[^"]*"
-#   5. Single-quoted strings:   '[^']*'
+#   4. Double-quoted strings:   "[^"\n]*"     (\n excluded — no multiline bleed)
+#   5. Single-quoted strings:   '[^'\n]*'     (\n excluded — no multiline bleed)
 #   6. Whitespace (incl. \n):   \s+
-#   7. Any other single char:   [^\s]        (symbols, operators, unknown)
+#   7. Any other single char:   [^\s]         (symbols, operators, unknown)
 _TOKEN_RE = re.compile(
-    r'#[^\n]*|[a-zA-Z_]\w*|[0-9]+(?:\.[0-9]+)?|"[^"]*"|\'[^\']*\'|\s+|[^\s]'
+    r'#[^\n]*|[a-zA-Z_]\w*|[0-9]+(?:\.[0-9]+)?|"[^"\n]*"|\'[^\'\n]*\'|\s+|[^\s]'
 )
 
 # Characters that are valid single-character symbols / operators in PussyCat.
@@ -44,31 +44,45 @@ _TOKEN_RE = re.compile(
 _SYMBOLS = set('+-*/=<>!:(),.[]{};%^&|~')
 
 
-def _classify(word: str) -> str:
+def _classify(word: str) -> Optional[str]:
     """Return the token type for a matched word.
 
     Returns None to signal an unknown / invalid token.
+
+    Uses simple character-level checks rather than re.fullmatch() to avoid
+    redundant regex overhead — _TOKEN_RE has already guaranteed the shape of
+    every match before _classify() is called.
     """
+    # KEYWORD — exact lookup in the map
     if word in KEYWORD_MAP:
         return "KEYWORD"
-    if re.fullmatch(r'[a-zA-Z_]\w*', word):
-        return "IDENT"
-    if re.fullmatch(r'[0-9]+(?:\.[0-9]+)?', word):
-        return "NUMBER"
-    # STRING: must be at least 2 chars (opening + closing quote) to avoid a
-    # lone stray quote being misclassified as a valid empty string.
-    if len(word) >= 2 and (
-        (word.startswith('"') and word.endswith('"')) or
-        (word.startswith("'") and word.endswith("'"))
-    ):
-        return "STRING"
-    if word.startswith('#'):
+
+    # COMMENT — starts with #
+    if word[0] == '#':
         return "COMMENT"
-    if word.strip() == '':          # pure whitespace / newlines
+
+    # WHITESPACE — all characters are whitespace
+    if word[0] in ' \t\r\n\f\v':
         return "WHITESPACE"
+
+    # IDENT — starts with a letter or underscore
+    if word[0].isalpha() or word[0] == '_':
+        return "IDENT"
+
+    # NUMBER — starts with a digit
+    if word[0].isdigit():
+        return "NUMBER"
+
+    # STRING — at least 2 chars, wrapped in matching quotes, no newlines
+    # (newlines already excluded by _TOKEN_RE, but guard len >= 2 for safety)
+    if len(word) >= 2 and word[0] == word[-1] and word[0] in ('"', "'"):
+        return "STRING"
+
+    # SYMBOL — single valid operator / punctuation character
     if len(word) == 1 and word in _SYMBOLS:
         return "SYMBOL"
-    return None                     # unknown token
+
+    return None     # unknown token
 
 
 def tokenize(source: str) -> LexerResult:
@@ -82,6 +96,14 @@ def tokenize(source: str) -> LexerResult:
     Never raises an exception; all error paths return a LexerResult with
     the error field set.
     """
+    # Enforce non-throwing invariant: reject non-string input immediately
+    # instead of letting _TOKEN_RE.finditer() raise a TypeError.
+    if not isinstance(source, str):
+        return LexerResult(
+            tokens=None,
+            error="[Lexer Error] Source must be a string"
+        )
+
     tokens: list[Token] = []
     line: int = 1                   # 1-indexed current line
 

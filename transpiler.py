@@ -63,9 +63,10 @@ def transpile(tokens: list[Token]) -> TranspileResult:
         newlines = token.value.count('\n')
         if newlines:
             for i in range(1, newlines + 1):
-                # Pre-seed each newly opened output line with the source line
-                # of the current token; the next real token will overwrite it.
-                line_map[out_line + i] = token.line
+                # Pre-seed each newly opened output line with the correct
+                # source line — token.line + i keeps it in sync with the
+                # actual source line each newline corresponds to.
+                line_map[out_line + i] = token.line + i
             out_line += newlines
 
     python_code = "".join(output_parts)
