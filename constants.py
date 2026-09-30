@@ -1,23 +1,30 @@
-"""Constants for PussyCat custom language."""
-
 KEYWORD_MAP: dict[str, str] = {
-    "kung":     "if",
-    "kundi":    "else",
-    "habang":   "while",
-    "para":     "for",
-    "ibalik":   "return",
-    "totoo":    "True",
-    "mali":     "False",
-    "wala":     "None",
-    "ipakita":  "print",
-    "at":       "and",
-    "o":        "or",
-    "hindi":    "not",
-    "klase":    "class",
-    "gawain":   "def",
-    "subukan":  "try",
-    "maliban":  "except",
-    "wakas":    "finally",
-    "itaas":    "import",
-    "mula":     "from",
+    # Control Flow
+    "meow": "if",  # Conditional check
+    "mew": "else",  # Alternative check
+    "chase": "while",  # Keep going/chasing
+    "paws": "for",  # Step-by-step loop
+
+    # Logic & Values
+    "purr": "True",  # Happy / Positive
+    "hiss": "False",  # Mad / Negative
+    "box": "None",  # An empty cat box
+    "whiskers": "and",  # Connects two sides
+    "tail": "or",  # Either side
+    "scratch": "not",  # Negate / Reject
+
+    # Functions & Classes
+    "trick": "def",  # Defining a cat trick/action
+    "furball": "return",  # Coughing something back up
+    "breed": "class",  # Type or classification
+
+    # Error Handling
+    "pounce": "try",  # Attempting an action
+    "miss": "except",  # What happens if the pounce fails
+    "nap": "finally",  # Always happens at the end
+
+    # Imports & Output
+    "adopt": "import",  # Bring in new code
+    "shelter": "from",  # Where the code comes from
+    "nyan": "print",  # Express / Output sound
 }
