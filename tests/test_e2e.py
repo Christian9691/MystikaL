@@ -128,6 +128,43 @@ class TestEndToEnd(unittest.TestCase):
         self.assertIn("<pussycat>", ex.stderr)
 
 
+class TestDataTypeKeywords(unittest.TestCase):
+    def test_type_conversions(self):
+        src = (
+            'nyan(mrow("5") + 1)\n'
+            'nyan(mrrp("1.5") * 2)\n'
+            'nyan(yowl(42) + "!")\n'
+            "nyan(chirp(0))\n"
+        )
+        _, _, ex = run_pussycat(src)
+        self.assertIsNone(ex.error)
+        self.assertEqual(ex.stdout.splitlines(), ["6", "3.0", "42!", "False"])
+
+    def test_collections(self):
+        src = (
+            "a = chatter([3, 1, 2])\n"
+            "b = trill(a)\n"
+            "c = squeal([1, 1, 2])\n"
+            'd = growl(x=1)\n'
+            "nyan(len(a), len(b), len(c), d)\n"
+        )
+        _, _, ex = run_pussycat(src)
+        self.assertIsNone(ex.error)
+        self.assertEqual(ex.stdout, "3 3 2 {'x': 1}")
+
+    def test_isinstance_with_type_keywords(self):
+        _, _, ex = run_pussycat('nyan(isinstance("a", yowl), isinstance(1, mrow))')
+        self.assertEqual(ex.stdout, "True True")
+
+    def test_python_type_names_still_pass_through(self):
+        _, _, ex = run_pussycat('nyan(int("7"), str(7), list("ab"))')
+        self.assertEqual(ex.stdout, "7 7 ['a', 'b']")
+
+    def test_type_keyword_inside_string_untouched(self):
+        _, _, ex = run_pussycat('nyan("mrow yowl growl")')
+        self.assertEqual(ex.stdout, "mrow yowl growl")
+
+
 class TestEdgeCases(unittest.TestCase):
     """#38"""
 

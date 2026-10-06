@@ -43,7 +43,7 @@ class TestKeywordPopup(unittest.TestCase):
         self.app.keywords_btn.invoke()
         self.assertTrue(self.app._keyword_popup.winfo_exists())
         self.assertEqual(self.rows(), list(KEYWORD_MAP.items()))
-        self.assertEqual(len(self.rows()), 19)
+        self.assertEqual(len(self.rows()), len(KEYWORD_MAP))
 
     def test_spot_check_known_equivalents(self):
         self.app.keywords_btn.invoke()
