@@ -55,6 +55,7 @@ class PussyCatIDE:
 
     def __init__(self, root: tk.Tk):
         self.root = root
+        self.root.withdraw()          # hidden until the splash finishes
         self._apply_cat_theme()       # #33
         self._create_widgets()
         self._show_splash()           # #34
@@ -114,15 +115,24 @@ class PussyCatIDE:
 
         # Kick off frame animation
         for text, delay in SPLASH_FRAMES:
-            self.root.after(delay, lambda t=text: self._splash_label.config(text=t))
+            self.root.after(delay, lambda t=text: self._set_splash_text(t))
 
         # Close splash and focus editor
         self.root.after(SPLASH_TOTAL_MS, self._close_splash)
 
+    def _set_splash_text(self, text: str):
+        # Frames may fire after the splash was closed early; ignore them then.
+        if self._splash.winfo_exists():
+            self._splash_label.config(text=text)
+
     def _close_splash(self):
-        if self._splash and self._splash.winfo_exists():
-            self._splash.destroy()
-        self.editor.focus_set()
+        try:
+            if self._splash and self._splash.winfo_exists():
+                self._splash.destroy()
+        finally:
+            self.root.deiconify()
+            self.root.lift()
+            self.editor.focus_set()
 
     # ── Widget construction ───────────────────────────────────────────────────
     def _create_widgets(self):
