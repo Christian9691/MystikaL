@@ -251,6 +251,23 @@ class PussyCatIDE:
         )
         self.run_btn.pack(side=tk.LEFT, padx=10, pady=4)
 
+        self.clear_btn = tk.Button(
+            self.status_bar,
+            text="🗑  Clear",
+            command=self.clear,
+            bg=CAT["bg_panel"],
+            fg=CAT["accent"],
+            activebackground=CAT["select_bg"],
+            activeforeground=CAT["accent"],
+            font=FONT_BOLD,
+            relief=tk.FLAT,
+            cursor="hand2",
+            padx=14,
+            pady=4,
+            bd=0,
+        )
+        self.clear_btn.pack(side=tk.LEFT, padx=(0, 10), pady=4)
+
         # Hint label
         tk.Label(
             self.status_bar,
@@ -505,6 +522,7 @@ class PussyCatIDE:
     # ── Misc ──────────────────────────────────────────────────────────────────
     def clear(self):
         self.editor.delete("1.0", tk.END)
+        self._update_line_numbers()
         self.output.config(state="normal")
         self.output.delete("1.0", tk.END)
         self.output.config(state="disabled")
