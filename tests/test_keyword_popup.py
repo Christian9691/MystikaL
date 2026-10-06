@@ -25,7 +25,8 @@ class TestKeywordPopup(unittest.TestCase):
     def setUp(self):
         self.root = tk.Tk()
         self.app = PussyCatIDE(self.root)
-        self.root.update()  # keep root mapped: a transient popup of a withdrawn root is never shown
+        self.app._close_splash()  # root stays hidden until the splash ends; popups need it mapped
+        self.root.update()
 
     def tearDown(self):
         for after_id in self.root.tk.splitlist(self.root.tk.call("after", "info")):

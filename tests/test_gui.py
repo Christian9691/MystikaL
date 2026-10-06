@@ -162,6 +162,23 @@ class TestThemeAndSplash(GuiTestCase):
         self.app._close_splash()
         self.assertFalse(self.app._splash.winfo_exists())
 
+    def test_main_window_hidden_while_splash_is_showing(self):
+        self.assertEqual(self.root.state(), "withdrawn")
+        self.assertTrue(self.app._splash.winfo_exists())
+
+    def test_main_window_shown_when_splash_finishes(self):
+        self.app._close_splash()
+        self.root.update()
+        self.assertEqual(self.root.state(), "normal")
+
+    def test_timer_closes_splash_and_shows_main_window(self):
+        self.root.update()
+        end = gui.SPLASH_TOTAL_MS + 300
+        self.root.after(end, self.root.quit)
+        self.root.mainloop()
+        self.assertFalse(self.app._splash.winfo_exists())
+        self.assertEqual(self.root.state(), "normal")
+
     def test_splash_total_is_about_two_seconds(self):
         self.assertTrue(2000 <= gui.SPLASH_TOTAL_MS <= 2500)
 
