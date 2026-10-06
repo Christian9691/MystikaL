@@ -66,6 +66,10 @@ nyan(greet("Rem"))
 More programs are in [`examples/`](examples/): `hello.cat`, `loops.cat`, `tricks.cat`
 and `error_demo.cat` (shows error line remapping). Paste one into the editor to try it.
 
+## Presentation & Demo
+
+Presenting this to your class or team? See [**`docs/DEMO.md`**](docs/DEMO.md) for a ready-to-use 5-minute live demo script, speaking points, technical Q&A defenses, and a pre-demo checklist.
+
 ## Known limitations
 
 - Keywords are reserved everywhere outside strings and comments. A variable named `meow` or
