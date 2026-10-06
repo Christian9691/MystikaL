@@ -18,7 +18,7 @@
 
 ---
 
-## Sprint 2: Transpiler Pipeline
+## Sprint 2: Transpiler Pipeline ✓
 **Goal:** Complete the core lexer → transpiler → executor logic
 
 ### Lexer (tokenize)
@@ -44,7 +44,7 @@
 
 ---
 
-## Sprint 3: GUI Integration & Polish
+## Sprint 3: GUI Integration & Polish ✓
 **Goal:** Wire GUI to pipeline, add cat theme, ship v1
 
 ### GUI Wiring
