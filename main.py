@@ -1,6 +1,6 @@
-"""Entry point for PussyCat IDE."""
+"""Launch Mystika Studio."""
 
-from gui import main
+from studio import launch
 
 if __name__ == "__main__":
-    main()
+    launch()
