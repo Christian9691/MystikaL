@@ -269,6 +269,23 @@ class PussyCatIDE:
         )
         self.status_label.pack(side=tk.RIGHT, padx=10)
 
+        self.keywords_btn = tk.Button(
+            self.status_bar,
+            text="📖  Keywords",
+            command=self.show_keyword_reference,
+            bg=CAT["bg_panel"],
+            fg=CAT["accent"],
+            activebackground=CAT["select_bg"],
+            activeforeground=CAT["accent"],
+            font=FONT_BOLD,
+            relief=tk.FLAT,
+            cursor="hand2",
+            padx=14,
+            pady=4,
+            bd=0,
+        )
+        self.keywords_btn.pack(side=tk.RIGHT, padx=4, pady=4)
+
         # ── Bindings ──────────────────────────────────────────────────────────
         self.editor.bind("<Tab>",           self._on_tab)
         self.editor.bind("<Control-Return>", self._on_ctrl_enter)
@@ -299,6 +316,67 @@ class PussyCatIDE:
             btn.bind("<Leave>",  lambda e, b=btn, k=cat_kw:   b.config(fg=CAT["fg_keyword"], text=k))
             # Click inserts keyword into editor
             btn.bind("<Button-1>", lambda e, k=cat_kw: self._insert_keyword(k))
+
+    def show_keyword_reference(self):
+        """Open (or focus) a popup listing every PussyCat keyword and its Python equivalent."""
+        popup = getattr(self, "_keyword_popup", None)
+        if popup is not None and popup.winfo_exists():
+            popup.deiconify()
+            popup.lift()
+            popup.focus_set()
+            return
+
+        popup = tk.Toplevel(self.root)
+        self._keyword_popup = popup
+        popup.title("🐾 Keyword Reference")
+        popup.configure(bg=CAT["bg_panel"])
+        popup.transient(self.root)
+        popup.resizable(False, True)
+        popup.bind("<Escape>", lambda e: popup.destroy())
+
+        tk.Label(
+            popup,
+            text="PussyCat → Python",
+            bg=CAT["bg_panel"],
+            fg=CAT["accent"],
+            font=FONT_BOLD,
+        ).pack(padx=12, pady=(10, 4))
+
+        style = ttk.Style(popup)
+        style.configure("Cat.Treeview", font=FONT_MONO, rowheight=24,
+                        background=CAT["bg_dark"], fieldbackground=CAT["bg_dark"],
+                        foreground=CAT["fg_main"])
+        style.configure("Cat.Treeview.Heading", font=FONT_BOLD)
+        style.map("Cat.Treeview",
+                  background=[("selected", CAT["select_bg"])],
+                  foreground=[("selected", CAT["select_fg"])])
+
+        self.keyword_table = ttk.Treeview(
+            popup, columns=("cat", "py"), show="headings",
+            height=len(KEYWORD_MAP), style="Cat.Treeview", selectmode="browse",
+        )
+        self.keyword_table.heading("cat", text="PussyCat")
+        self.keyword_table.heading("py", text="Python")
+        self.keyword_table.column("cat", width=140, anchor=tk.W)
+        self.keyword_table.column("py", width=140, anchor=tk.W)
+        for cat_kw, py_kw in KEYWORD_MAP.items():
+            self.keyword_table.insert("", tk.END, values=(cat_kw, py_kw))
+        self.keyword_table.pack(padx=12, pady=4)
+
+        tk.Label(
+            popup,
+            text="Double-click a row to insert it in the editor",
+            bg=CAT["bg_panel"],
+            fg=CAT["fg_dim"],
+            font=FONT_SMALL,
+        ).pack(pady=(0, 10))
+        self.keyword_table.bind("<Double-1>", self._on_keyword_row_activate)
+
+    def _on_keyword_row_activate(self, event):
+        row = self.keyword_table.identify_row(event.y)
+        if row:
+            self._insert_keyword(self.keyword_table.item(row, "values")[0])
+
 
     def _insert_keyword(self, keyword: str):
         """Insert a keyword from the bar into the editor at cursor."""
