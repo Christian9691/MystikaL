@@ -97,7 +97,7 @@ class TestKeywordBar(GuiTestCase):
     """#32"""
 
     def test_bar_has_all_keywords(self):
-        labels = [w.cget("text") for w in self.app.keyword_bar.winfo_children()]
+        labels = [w.cget("text").split(" ")[0] for w in self.app.keyword_bar.winfo_children()]
         self.assertEqual(len(KEYWORD_MAP), 19)
         self.assertEqual(sorted(labels), sorted(KEYWORD_MAP))
 
