@@ -23,7 +23,7 @@ python3 main.py
 | Run the program | `▶ Run` button or `Ctrl+Enter` |
 | Indent | `Tab` inserts 4 spaces |
 | Reset editor and output | `🗑 Clear` button |
-| Insert a keyword | Click it in the keyword bar (hover shows its Python equivalent) |
+| Insert a keyword | Click it in the keyword bar (hover shows its Python equivalent), or open `📖 Keywords` for the full lookup table |
 
 The right panel shows the generated Python first, then program output, or an error section
 (lexer error, syntax error, or traceback). The status bar shows `ready / running / ok / error`.
@@ -42,6 +42,15 @@ The right panel shows the generated Python first, then program output, or an err
 | `whiskers` | `and` | | `shelter` | `from` |
 | `tail` | `or` | | `nyan` | `print` |
 | `scratch` | `not` | | | |
+
+### Data types
+
+| PussyCat | Python | | PussyCat | Python |
+|----------|--------|-|----------|--------|
+| `mrow` | `int` | | `trill` | `tuple` |
+| `mrrp` | `float` | | `squeal` | `set` |
+| `yowl` | `str` | | `growl` | `dict` |
+| `chirp` | `bool` | | `chatter` | `list` |
 
 Everything else is plain Python syntax.
 

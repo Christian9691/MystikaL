@@ -315,7 +315,10 @@ class PussyCatIDE:
     # ── Keyword bar ───────────────────────────────────────────────────────────
     def _fill_keyword_bar(self):
         """Fill keyword reference bar with all KEYWORD_MAP entries as buttons."""
-        for cat_kw, py_kw in KEYWORD_MAP.items():
+        columns = 9  # wrap into rows so 27 keywords fit the window width
+        for c in range(columns):
+            self.keyword_bar.grid_columnconfigure(c, weight=1, uniform="kw")
+        for i, (cat_kw, py_kw) in enumerate(KEYWORD_MAP.items()):
             btn = tk.Label(
                 self.keyword_bar,
                 text=f"{cat_kw}",
@@ -326,7 +329,7 @@ class PussyCatIDE:
                 padx=6,
                 pady=4,
             )
-            btn.pack(side=tk.LEFT)
+            btn.grid(row=i // columns, column=i % columns, sticky="w")
             # Tooltip-style hover
             tip_text = f"{cat_kw} → {py_kw}"
             btn.bind("<Enter>",  lambda e, b=btn, t=tip_text: b.config(fg=CAT["accent"], text=t))

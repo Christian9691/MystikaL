@@ -91,7 +91,7 @@ class TestRegexPattern(unittest.TestCase):
 
 class TestTokenClassification(unittest.TestCase):
 
-    def test_all_19_keywords_classified(self):
+    def test_all_keywords_classified(self):
         for kw in KEYWORD_MAP:
             result = tokenize(kw)
             self.assertIsNone(result.error, f"Keyword '{kw}' caused error")

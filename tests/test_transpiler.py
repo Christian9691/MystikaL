@@ -79,7 +79,7 @@ class TestCodeBuilding(unittest.TestCase):
 
 class TestKeywordSubstitution(unittest.TestCase):
 
-    def test_all_19_keywords_substituted(self):
+    def test_all_keywords_substituted(self):
         for kw, py in KEYWORD_MAP.items():
             r = lex_and_transpile(kw)
             self.assertEqual(r.python, py, f"'{kw}' → expected '{py}', got '{r.python}'")

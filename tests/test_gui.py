@@ -98,7 +98,7 @@ class TestKeywordBar(GuiTestCase):
 
     def test_bar_has_all_keywords(self):
         labels = [w.cget("text").split(" ")[0] for w in self.app.keyword_bar.winfo_children()]
-        self.assertEqual(len(KEYWORD_MAP), 19)
+        self.assertEqual(len(KEYWORD_MAP), 27)
         self.assertEqual(sorted(labels), sorted(KEYWORD_MAP))
 
     def test_insert_keyword_adds_to_editor(self):

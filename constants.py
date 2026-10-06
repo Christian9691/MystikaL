@@ -27,4 +27,14 @@ KEYWORD_MAP: dict[str, str] = {
     "adopt": "import",  # Bring in new code
     "shelter": "from",  # Where the code comes from
     "nyan": "print",  # Express / Output sound
+
+    # Data Types (variations of cat sounds)
+    "mrow": "int",  # Whole numbers
+    "mrrp": "float",  # Decimal numbers
+    "yowl": "str",  # Text
+    "chirp": "bool",  # True / False
+    "chatter": "list",  # Ordered collection
+    "trill": "tuple",  # Fixed collection
+    "squeal": "set",  # Unique collection
+    "growl": "dict",  # Key/value pairs
 }
