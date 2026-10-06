@@ -1,0 +1,17 @@
+# Functions, classes and error handling
+trick greet(name):
+    furball "Meow, " + name
+
+breed Cat:
+    trick speak(self):
+        furball "purr"
+
+nyan(greet("Rem"))
+nyan(Cat().speak())
+
+pounce:
+    nyan(1 / 0)
+miss ZeroDivisionError:
+    nyan("caught a division by zero")
+nap:
+    nyan("always runs")
