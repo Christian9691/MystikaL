@@ -1,0 +1,4 @@
+# Intentional runtime error: the traceback should point at PussyCat line 4
+x = 10
+
+nyan(x / 0)
