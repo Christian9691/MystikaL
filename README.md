@@ -1,99 +1,114 @@
-# PussyCat 🐱
+Mystika ✦
 
-A cat-themed programming language and a single-window desktop IDE for it. PussyCat
-source is tokenized, transpiled to Python, and executed in a subprocess. Runtime
-errors are reported against **your PussyCat line numbers**, not the generated Python's.
+A spell-casting programming language and a single-window desktop IDE for it. Mystika source is scanned into runes, woven into Python, and cast (executed) in a separate process. Runtime errors are reported against your Mystika line numbers, not the generated Python's.
 
-## Requirements
+The magic words are Encantadia-inspired: write abisala instead of if, brilyante instead of def, hayag instead of print.
 
-- Python 3.10+ (developed on 3.14)
-- `tkinter` (bundled with most Python installs; on Debian/Ubuntu: `sudo apt install python3-tk`)
-- No third-party packages
+Requirements
+Python 3.10+
+tkinter (bundled with most Python installs; on Debian/Ubuntu: sudo apt install python3-tk)
+No third-party packages
+Run
+bash
+python main.py
+Usage
+Action	How
+Cast the spell (run)	✦ Cast Spell button or Ctrl+Enter
+Indent / dedent	Tab inserts 4 spaces, Shift+Tab removes up to 4
+Auto-indent	Pressing Enter keeps the indent, and adds 4 after a line ending in :
+Load the demo program	📜 Sample button
+Reset editor and output	🗑 Clear button
+Insert a keyword	Double-click it in the Spellbook sidebar (selecting a row shows its meaning)
 
-## Run
+The right panel has two tabs: Result (program output, or a scanner error / traceback) and Python Form (the generated Python). The status bar shows ready / casting / nagtagumpay / pumalya.
 
-```bash
-python3 main.py
-```
+Keywords (34 spells)
+Daloy ng Mahika
+Mystika	Python	Meaning
+abisala	if	Abisala! Kung totoo ang kondisyon
+eshma	elif	Isa pang kondisyon
+ashti	else	Kung walang tumama
+lireo	while	Umikot habang may bisa ang sumpa
+sapiro	for	Isa-isang daanan ang koleksyon
+hathoria	in	Nasa loob ng
+lagot	break	Sirain ang ikot
+tuloy	continue	Lumaktaw sa susunod na ikot
+tahimik	pass	Walang gagawin
+Katotohanan
+Mystika	Python	Meaning
+ivo	True	Pag-ibig, tama, totoo
+hagorn	False	Kasamaan, mali, hindi totoo
+adamya	None	Ang kawalan
+emre	and	Dapat parehong tama
+alena	or	Isa lang ay sapat na
+pirena	not	Baligtarin ang bisa
+Kapangyarihan
+Mystika	Python	Meaning
+brilyante	def	Lumikha ng bagong kapangyarihan (function)
+bumalik	return	Ibalik ang resulta ng kapangyarihan
+sanggre	class	Lahi ng mga nilalang (class)
+Pagsubok
+Mystika	Python	Meaning
+hamon	try	Subukan ang mapanganib na gawain
+bigo	except	Kapag nabigo ang hamon
+wakas	finally	Laging mangyayari sa dulo
+sumpain	raise	Magpakawala ng sumpa (error)
+Pagtawag
+Mystika	Python	Meaning
+ipatawag	import	Tawagin ang panlabas na kapangyarihan
+etheria	from	Mula sa anong kaharian
+hayag	print	Ihayag ang mensahe
+usisa	input	Magtanong sa nagbabasa
+Anyo ng Datos
+Mystika	Python	Meaning
+buo	int	Buong bilang
+hati	float	May decimal
+titik	str	Teksto
+tadhana	bool	Totoo o hindi
+hanay	list	Maayos na koleksyon
+tali	tuple	Koleksyon na hindi mababago
+natatangi	set	Koleksyon na walang pareho
+aklat	dict	Susi at halaga
 
-## Usage
+Everything else is plain Python syntax (range, len, operators, f-strings, and so on).
 
-| Action | How |
-|--------|-----|
-| Run the program | `▶ Run` button or `Ctrl+Enter` |
-| Indent | `Tab` inserts 4 spaces |
-| Reset editor and output | `🗑 Clear` button |
-| Insert a keyword | Click it in the keyword bar (hover shows its Python equivalent), or open `📖 Keywords` for the full lookup table |
+Example
+brilyante bati(pangalan):
+    bumalik "Abisala, " + pangalan
 
-The right panel shows the generated Python first, then program output, or an error section
-(lexer error, syntax error, or traceback). The status bar shows `ready / running / ok / error`.
+hayag(bati("eshma"))
 
-## Keywords
+More programs are in examples/: hello.mys, loops.mys, trials.mys and error_demo.mys (shows error line remapping). Open one in any text editor and paste it into the IDE to try it.
 
-| PussyCat | Python | | PussyCat | Python |
-|----------|--------|-|----------|--------|
-| `meow` | `if` | | `trick` | `def` |
-| `mew` | `else` | | `furball` | `return` |
-| `chase` | `while` | | `breed` | `class` |
-| `paws` | `for` | | `pounce` | `try` |
-| `purr` | `True` | | `miss` | `except` |
-| `hiss` | `False` | | `nap` | `finally` |
-| `box` | `None` | | `adopt` | `import` |
-| `whiskers` | `and` | | `shelter` | `from` |
-| `tail` | `or` | | `nyan` | `print` |
-| `scratch` | `not` | | | |
+How it works
+source text ──▶ scanner ──▶ runes ──▶ weaver ──▶ Python + line map ──▶ caster ──▶ output
+Scanner reads the text character by character and produces runes. A bad character or an unclosed string stops here, with the line and column.
+Weaver swaps each spell for its Python equivalent and records which Mystika line every Python line came from.
+Caster runs the Python in a subprocess with a time limit, then rewrites the traceback line numbers using the line map.
+Known limitations
+Spells are reserved words outside strings and comments. A variable named ivo or hati is treated as the spell. (After a dot, such as obj.hati, it stays a normal name.)
+Scripts are stopped after 10 seconds and reported as timed out.
+usisa (input) cannot read from the keyboard; the script gets no input and will raise an error.
+Spells are defined in spellbook.py. There is no file save/open or multi-file support.
+The IDE runs your code with your Python interpreter and user permissions. Only run code you trust.
+Tests
+bash
+python -m unittest discover tests
 
-### Data types
+GUI tests need a display and are skipped automatically when none is available (on a headless machine use xvfb-run python -m unittest discover tests).
 
-| PussyCat | Python | | PussyCat | Python |
-|----------|--------|-|----------|--------|
-| `mrow` | `int` | | `trill` | `tuple` |
-| `mrrp` | `float` | | `squeal` | `set` |
-| `yowl` | `str` | | `growl` | `dict` |
-| `chirp` | `bool` | | `chatter` | `list` |
-
-Everything else is plain Python syntax.
-
-## Example
-
-```
-trick greet(name):
-    furball "Meow, " + name
-
-nyan(greet("Rem"))
-```
-
-More programs are in [`examples/`](examples/): `hello.cat`, `loops.cat`, `tricks.cat`
-and `error_demo.cat` (shows error line remapping). Paste one into the editor to try it.
-
-## Presentation & Demo
-
-Presenting this to your class or team? See [**`docs/DEMO.md`**](docs/DEMO.md) for a ready-to-use 5-minute live demo script, speaking points, technical Q&A defenses, and a pre-demo checklist.
-
-## Known limitations
-
-- Keywords are reserved everywhere outside strings and comments. A variable named `meow` or
-  `tail` is treated as the keyword and transpiled to `if` / `or`.
-- Scripts are killed after 10 seconds and reported as a timeout error.
-- Keywords are hardcoded in `constants.py`; there is no file save/open or multi-file support (PRD non-goals).
-- The IDE runs your code with your Python interpreter and user permissions. Only run code you trust.
-
-## Tests
-
-```bash
-python3 -m unittest discover tests
-```
-
-GUI tests need a display and are skipped automatically when none is available
-(on a headless machine use `xvfb-run python3 -m unittest discover tests`).
-
-## Project layout
-
-| File | Role |
-|------|------|
-| `constants.py` | `KEYWORD_MAP` |
-| `lexer.py` | `tokenize()` → tokens or lexer error with line number |
-| `transpiler.py` | `transpile()` → Python source + line map |
-| `executor.py` | `execute()` → subprocess run, timeout, traceback remapping |
-| `gui.py` | tkinter IDE |
-| `main.py` | entry point |
+Docs
+docs/SPEC-Mystika.md: the language definition
+docs/DESIGN.md: architecture and design decisions
+docs/DEMO.md: 5-minute demo script and likely questions
+Project layout
+File	Role
+spellbook.py	GRIMOIRE (grouped spells) and SPELLBOOK (flat lookup)
+scanner.py	scan() returns runes, or a scanner problem with line and column
+weaver.py	weave() returns Python source and a line map
+caster.py	cast() runs a subprocess with timeout and traceback remapping
+studio.py	tkinter IDE (MystikaStudio)
+main.py	entry point
+examples/	sample .mys programs
+tests/	unit, end-to-end and GUI tests
+docs/	spec, design notes, demo script
